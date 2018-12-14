@@ -31,11 +31,8 @@ vgg.to(device)
 
 
 # ### Load in Content and Style Images
-#
-# You can load in any images you want! Below, we've provided a helper function for loading in any type and size of image. The `load_image` function also converts images to normalized Tensors.
-#
-# Additionally, it will be easier to have smaller images and to squish the content and style images so that they are of the same size.
-
+##
+# this helper function squishes content/style images to make sure they're the same size.
 
 def load_image(img_path, max_size=400, shape=None):
     ''' Load in and transform an image, making sure the image
@@ -100,9 +97,9 @@ def get_features(image, model, layers=None):
                   '21': 'conv4_2', ##Content Representation
                   '28': 'conv5_1'}
 
-    ## -- do not need to change the code below this line -- ##
     features = {}
     x = image
+
     # model._modules is a dictionary holding each module in the model
     for name, layer in model._modules.items():
         x = layer(x)
@@ -183,12 +180,8 @@ style_weight = 1e6  # beta
 # #### Style Loss
 #
 # The style loss is calculated in a similar way, only you have to iterate through a number of layers, specified by name in our dictionary `style_weights`.
-# > You'll calculate the gram matrix for the target image, `target_gram` and style image `style_gram` at each of these layers and compare those gram matrices, calculating the `layer_style_loss`.
-# > Later, you'll see that this value is normalized by the size of the layer.
-#
-# Finally, you'll create the total loss by adding up the style and content losses and weighting them with your specified alpha and beta!
-#
-# Intermittently, we'll print out this loss; don't be alarmed if the loss is very large. It takes some time for an image's style to change and you should focus on the appearance of your target image rather than any loss value. Still, you should see that this loss decreases over some number of iterations.
+##
+# Intermittently, we'll print out this loss/save the image to our output dir.
 #
 
 # for saving the target image, intermittently
@@ -196,7 +189,7 @@ save_every = 400
 
 # iteration hyperparameters
 optimizer = optim.Adam([target], lr=0.003)
-steps = 5000  # decide how many iterations to update your image 
+steps = 5000  # decide how many iterations to update your image
 
 # location to store Images
 script_dir = os.path.dirname(__file__)
