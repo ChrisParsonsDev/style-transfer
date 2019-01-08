@@ -45,7 +45,7 @@ if __name__ == "__main__":
 # * `vgg19.features`, which are all the convolutional and pooling layers
 # * `vgg19.classifier`, which are the three linear, classifier layers at the end
 # get the "features" portion of VGG19 (do not need the "classifier" portion)
-
+print("Downloading Model")
 vgg = models.vgg19(pretrained=True).features
 
 # freeze all VGG parameters since we're only optimizing the target image
@@ -217,7 +217,8 @@ optimizer = optim.Adam([target], lr=0.003)
 steps = 5000  # decide how many iterations to update your image
 
 # location to store Images
-result_dir = os.environ["RESULT_DIR"]+"/data"
+script_dir = os.path.dirname(__file__)
+results_dir = os.path.join(script_dir, 'output/')
 
 if not os.path.isdir(results_dir):
     os.makedirs(results_dir)
@@ -262,6 +263,6 @@ for ii in range(1, steps+1):
     # print loss every few iterations
     if  ii % save_every == 0:
         print('Total loss: ', total_loss.item())
-        # # Generate unique filename
-        # filename = str(int(total_loss.item()))+'.png'
-        # plt.imsave(results_dir + filename, im_convert(target))
+        # Generate unique filename
+        filename = str(int(total_loss.item()))+'.png'
+        plt.imsave(results_dir + filename, im_convert(target))
