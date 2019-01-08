@@ -10,6 +10,32 @@ import torch
 import torch.optim as optim
 from torchvision import transforms, models
 
+# Parameters
+training_iters = 5000
+save_every = 400
+
+#Main method for allowing parameter Updating
+def main(argv):
+
+    if len(argv) < 4:
+        sys.exit("Not enough arguments provided.")
+
+    global content_image_file, style_image_file, training_iters
+
+    i = 1
+    while i <= 3:
+        arg = str(argv[i])
+        if arg == "--contentImageFile":
+            train_images_file = str(argv[i+1])
+        elif arg == "--styleImageFile":
+            train_labels_file = str(argv[i+1])
+        elif arg =="--trainingIters":
+            training_iters = int(argv[i+1])
+        i += 2
+
+if __name__ == "__main__":
+    main(sys.argv)
+
 
 # ## Load in VGG19 (features)
 #
@@ -61,9 +87,9 @@ def load_image(img_path, max_size=400, shape=None):
     return image
 
 # load in content and style image
-content = load_image('<filename>.jpeg').to(device)
+content = load_image(content_image_file).to(device)
 # Resize style to match content, makes code easier
-style = load_image('<filename>.jpg', shape=content.shape[-2:]).to(device)
+style = load_image(style_image_file, shape=content.shape[-2:]).to(device)
 
 # helper function for un-normalizing an image
 # and converting it from a Tensor image to a NumPy image for display
@@ -183,9 +209,6 @@ style_weight = 1e6  # beta
 ##
 # Intermittently, we'll print out this loss/save the image to our output dir.
 #
-
-# for saving the target image, intermittently
-save_every = 400
 
 # iteration hyperparameters
 optimizer = optim.Adam([target], lr=0.003)
