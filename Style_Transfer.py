@@ -217,8 +217,7 @@ optimizer = optim.Adam([target], lr=0.003)
 steps = 5000  # decide how many iterations to update your image
 
 # location to store Images
-script_dir = os.path.dirname(__file__)
-results_dir = os.path.join(script_dir, 'output/')
+result_dir = os.environ["RESULT_DIR"]+"/data"
 
 if not os.path.isdir(results_dir):
     os.makedirs(results_dir)
@@ -260,7 +259,7 @@ for ii in range(1, steps+1):
     optimizer.step()
 
 
-    # display intermediate images and print the loss
+    # print loss every few iterations
     if  ii % save_every == 0:
         print('Total loss: ', total_loss.item())
         # Generate unique filename
