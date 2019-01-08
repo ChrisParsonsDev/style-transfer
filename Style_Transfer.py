@@ -10,6 +10,9 @@ import torch
 import torch.optim as optim
 from torchvision import transforms, models
 
+content_image_file = ""
+style_image_file = ""
+
 # Parameters
 training_iters = 5000
 save_every = 400
@@ -17,7 +20,7 @@ save_every = 400
 #Main method for allowing parameter Updating
 def main(argv):
 
-    if len(argv) < 4:
+    if len(argv) < 6:
         sys.exit("Not enough arguments provided.")
 
     global content_image_file, style_image_file, training_iters
@@ -26,16 +29,15 @@ def main(argv):
     while i <= 3:
         arg = str(argv[i])
         if arg == "--contentImageFile":
-            train_images_file = str(argv[i+1])
+            content_image_file = str(argv[i+1])
         elif arg == "--styleImageFile":
-            train_labels_file = str(argv[i+1])
+            style_image_file = str(argv[i+1])
         elif arg =="--trainingIters":
             training_iters = int(argv[i+1])
         i += 2
 
 if __name__ == "__main__":
     main(sys.argv)
-
 
 # ## Load in VGG19 (features)
 #
