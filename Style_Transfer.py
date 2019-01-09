@@ -9,6 +9,7 @@ import sys
 import torch
 import torch.optim as optim
 from torchvision import transforms, models
+from emetrics import EMetrics
 
 content_image_file = ""
 style_image_file = ""
@@ -223,46 +224,48 @@ results_dir = os.path.join(script_dir, 'output/')
 if not os.path.isdir(results_dir):
     os.makedirs(results_dir)
 
-for ii in range(1, steps+1):
+with EMetrics.open() as em:
+    for ii in range(1, steps+1):
+        em.record("I'm WORKING")
+        ## Get the features from your target image
+        ## Then calculate the content loss
+        target_features = get_features(target, vgg)
+        content_loss = torch.mean((target_features['conv4_2'] - content_features['conv4_2'])**2)
 
-    ## Get the features from your target image
-    ## Then calculate the content loss
-    target_features = get_features(target, vgg)
-    content_loss = torch.mean((target_features['conv4_2'] - content_features['conv4_2'])**2)
+        # the style loss
+        # initialize the style loss to 0
+        style_loss = 0
+        # iterate through each style layer and add to the style loss
+        for layer in style_weights:
+            # get the "target" style representation for the layer
+            target_feature = target_features[layer]
+            _, d, h, w = target_feature.shape
 
-    # the style loss
-    # initialize the style loss to 0
-    style_loss = 0
-    # iterate through each style layer and add to the style loss
-    for layer in style_weights:
-        # get the "target" style representation for the layer
-        target_feature = target_features[layer]
-        _, d, h, w = target_feature.shape
+            ## Calculate the target gram matrix
+            target_gram = gram_matrix(target_feature)
 
-        ## Calculate the target gram matrix
-        target_gram = gram_matrix(target_feature)
+            ## Get the "style" style representation
+            style_gram = style_grams[layer]
+            ## Calculate the style loss for one layer, weighted appropriately
+            layer_style_loss = style_weights[layer] * torch.mean((target_gram - style_gram)**2)
 
-        ## Get the "style" style representation
-        style_gram = style_grams[layer]
-        ## Calculate the style loss for one layer, weighted appropriately
-        layer_style_loss = style_weights[layer] * torch.mean((target_gram - style_gram)**2)
-
-        # add to the style loss
-        style_loss += layer_style_loss / (d * h * w)
-
-
-    ## Calculate the *total* loss
-    total_loss = content_weight * content_loss + style_weight * style_loss
-
-    # update your target image
-    optimizer.zero_grad()
-    total_loss.backward()
-    optimizer.step()
+            # add to the style loss
+            style_loss += layer_style_loss / (d * h * w)
 
 
-    # print loss every few iterations
-    if  ii % save_every == 0:
-        # print('Total loss: ', total_loss.item())
-        # Generate unique filename
-        filename = str(int(total_loss.item()))+'.png'
-        # plt.imsave(output_path + filename, im_convert(target))
+        ## Calculate the *total* loss
+        total_loss = content_weight * content_loss + style_weight * style_loss
+
+        # update your target image
+        optimizer.zero_grad()
+        total_loss.backward()
+        optimizer.step()
+
+
+        # print loss every few iterations
+        if  ii % save_every == 0:
+            em.record("Training: ",ii,{'Total Loss: ': total_loss.item()})
+            # print('Total loss: ', total_loss.item())
+            # Generate unique filename
+            filename = str(int(total_loss.item()))+'.png'
+            # plt.imsave(output_path + filename, im_convert(target))
