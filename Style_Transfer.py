@@ -12,19 +12,19 @@ from torchvision import transforms, models
 
 content_image_file = ""
 style_image_file = ""
-model_file = ""
 
 # Parameters
 training_iters = 5000
 save_every = 400
+output_path = os.environ["RESULT_DIR"]+"/results"
 
 #Main method for allowing parameter Updating
 def main(argv):
 
-    if len(argv) < 8:
+    if len(argv) < 6:
         sys.exit("Not enough arguments provided.")
 
-    global content_image_file, style_image_file, training_iters, model_file
+    global content_image_file, style_image_file, training_iters
 
     i = 1
     while i <= 3:
@@ -35,8 +35,6 @@ def main(argv):
             style_image_file = str(argv[i+1])
         elif arg =="--trainingIters":
             training_iters = int(argv[i+1])
-        elif arg == "--modelPath":
-            model_file = str(argv[i+1])
         i += 2
 
 if __name__ == "__main__":
@@ -48,7 +46,7 @@ if __name__ == "__main__":
 # * `vgg19.features`, which are all the convolutional and pooling layers
 # * `vgg19.classifier`, which are the three linear, classifier layers at the end
 # get the "features" portion of VGG19 (do not need the "classifier" portion)
-vgg = torch.load(model_file)
+vgg = models.vgg19(pretrained=True).features
 
 # freeze all VGG parameters since we're only optimizing the target image
 for param in vgg.parameters():
@@ -267,4 +265,4 @@ for ii in range(1, steps+1):
         print('Total loss: ', total_loss.item())
         # Generate unique filename
         filename = str(int(total_loss.item()))+'.png'
-        plt.imsave(results_dir + filename, im_convert(target))
+        plt.imsave(output_path + filename, im_convert(target))
