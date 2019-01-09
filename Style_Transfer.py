@@ -262,7 +262,7 @@ for ii in range(1, steps+1):
 
     # print loss every few iterations
     if  ii % save_every == 0:
-        print('Total loss: ', total_loss.item())
+        # print('Total loss: ', total_loss.item())
         # Generate unique filename
         filename = str(int(total_loss.item()))+'.png'
-        plt.imsave(output_path + filename, im_convert(target))
+        # plt.imsave(output_path + filename, im_convert(target))
