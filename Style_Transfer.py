@@ -47,6 +47,10 @@ if __name__ == "__main__":
 # * `vgg19.features`, which are all the convolutional and pooling layers
 # * `vgg19.classifier`, which are the three linear, classifier layers at the end
 # get the "features" portion of VGG19 (do not need the "classifier" portion)
+
+with EMetrics.open() as em:
+    em.record("AT LEAST I CAN LOG NOW")
+
 vgg = models.vgg19(pretrained=True).features
 
 # freeze all VGG parameters since we're only optimizing the target image
